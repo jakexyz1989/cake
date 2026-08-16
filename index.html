@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cake</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    
+    <!-- Model Viewer -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #111; 
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Space Grotesk', sans-serif;
+            overflow: hidden; /* Prevents scroll until unlocked */
+        }
+
+        /* --- LOCK SCREEN --- */
+        .lock-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            width: 100%;
+            max-width: 400px;
+            z-index: 20;
+        }
+
+        .logo-container .logo {
+            width: 180px; 
+            min-height: 50px; 
+            color: #fff;
+            margin-bottom: -10px;
+        }
+
+        .passcode-dots {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .dot {
+            width: 18px;
+            height: 18px;
+            background-color: #555; 
+            border-radius: 50%;
+            box-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            justify-items: center;
+        }
+
+        .num-btn {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            border: 2px solid #333; 
+            background-color: #222; 
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.15s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6); 
+        }
+
+        .num-btn:active {
+            transform: scale(0.92);
+        }
+
+        .spiderman-btn {
+            grid-column: 2; 
+        }
+
+        /* --- UNLOCKED WRAPPER --- */
+        #unlockedContent {
+            display: none;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        }
+
+        /* --- SECTION 1: MAIN WEBSITE (Aura Store) --- */
+        .main-website {
+            width: 100%;
+            height: 100vh;
+            background: #e8e8e8; 
+            padding: 30px 40px;
+            position: relative; /* Changed from fixed so it scrolls */
+            color: #1a1a1a;
+            display: flex; 
+            justify-content: center;
+            align-items: center;
+        }
+
+        .web-wrapper {
+            width: 95%;
+            height: 90%;
+            background: radial-gradient(circle at center, #ffffff 0%, #f4f4f4 100%);
+            border: 2px solid #1a1a1a;
+            border-radius: 20px;
+            position: relative;
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+            overflow: visible; 
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.03);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 0.9rem;
+            z-index: 20;
+            font-weight: 700;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .header-star {
+            width: 55px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        nav {
+            display: flex;
+            gap: 40px;
+            text-transform: lowercase;
+            font-weight: 700;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #b0b0b0;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        nav a.active {
+            color: #1a1a1a;
+        }
+
+        .account-info {
+            position: absolute;
+            top: 1.5%;
+            right: 2.5%;
+            text-transform: lowercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            color: #1a1a1a;
+            z-index: 20;
+        }
+
+        main {
+            flex: 1;
+            position: static; 
+            width: 100%;
+            height: 100%;
+        }
+
+        .background-text {
+            position: absolute;
+            top: 45%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5vw; 
+            z-index: 2; 
+            pointer-events: none;
+        }
+
+        .bg-left-img {
+            width: 32vw;
+            max-width: 450px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .bg-right-img {
+            width: 25vw;
+            max-width: 350px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .center-model {
+            position: absolute;
+            bottom: -130px; 
+            left: 50%;
+            transform: translateX(-50%);
+            height: 110%; 
+            z-index: 30; 
+            pointer-events: none; 
+            object-fit: contain;
+            object-position: bottom center;
+        }
+
+        .bottom-left-content {
+            position: absolute;
+            bottom: 30px;
+            left: 40px;
+            z-index: 10;
+            max-width: 320px;
+        }
+
+        .recycle-icon {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .bottom-left-content h2 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            line-height: 1.1;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+        }
+
+        .bottom-left-content p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #8c8c8c; 
+        }
+
+        .spiderman-text {
+            color: #e60000;
+        }
+
+        .right-content {
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .product-card {
+            border: 4px solid #1a1a1a; 
+            border-radius: 20px;
+            padding: 20px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 250px; 
+            height: 250px;
+            background: transparent;
+            position: relative; 
+            overflow: hidden;
+        }
+
+        .my-3d-model {
+            width: 100%;
+            height: 100%;
+            outline: none;
+        }
+
+        .about-card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+            display: none;
+        }
+
+        /* --- SECTION 2: GRADIENT LAYOUT --- */
+        .gradient-section {
+            background: linear-gradient(to bottom, #e2e2e2 0%, #464646 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            position: relative;
+            width: 100%;
+            overflow: hidden; /* Contains the absolute elements */
+        }
+
+        .side-text {
+            position: absolute;
+            left: 6%;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 68vh;
+            width: auto;
+        }
+
+        .canvas-card {
+            width: 85%;
+            max-width: 960px;
+            aspect-ratio: 16 / 9.5;
+            background: linear-gradient(to bottom, #e2e2e2 0%, #464646 100%);
+            border: 3px solid #1a1a1a;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            position: relative;
+            padding: 32px;
+            z-index: 5;
+        }
+
+        .card-image {
+            width: 58%;
+            height: auto;
+            display: block;
+            border-radius: 16px;
+            border: 3px solid #1a1a1a;
+        }
+
+        .quote-text {
+            width: 58%;
+            margin-top: 16px;
+            font-size: 1.8rem;
+            color: black;
+            font-family: 'Times New Roman', Times, Georgia, serif;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .right-side-text {
+            position: absolute;
+            top: 40px;
+            left: 62%;
+            width: 33%;
+            font-family: 'Great Vibes', cursive;
+            font-size: 1.8rem;
+            line-height: 1.2;
+            color: black;
+        }
+
+        .right-side-text p {
+            margin-bottom: 0;
+        }
+
+        .red-text { color: red; }
+        .grey-text { color: grey; }
+
+        .overlay-image {
+            position: absolute;
+            top: -65px;
+            left: 70px;
+            width: 110px;
+            height: auto;
+            border-radius: 12px;
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        .cake-image {
+            position: absolute;
+            top: -85px;
+            right: 60px;
+            width: 180px; 
+            height: auto;
+            z-index: 15;
+            border-radius: 8px;
+        }
+
+        .model-container {
+            position: absolute;
+            bottom: -110px; 
+            right: 80px; 
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            border: 2px solid #000;
+            z-index: 20;
+            overflow: hidden;
+            background-color: #0a1128; 
+            background-image: 
+                radial-gradient(white 1px, transparent 1px),
+                radial-gradient(white 1px, transparent 1px),
+                radial-gradient(rgba(255,255,255,0.8) 1.5px, transparent 1.5px);
+            background-size: 40px 40px, 60px 60px, 100px 100px;
+            background-position: 0 0, 20px 30px, 50px 80px;
+        }
+        
+        .gradient-model-viewer {
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- AUDIO ELEMENTS -->
+    <audio id="aboutAudio" src="The 1975 - About You .mp3" loop></audio>
+    <audio id="background-audio" src="ynf.mp3"></audio>
+
+    <!-- LOCK SCREEN -->
+    <div class="lock-screen" id="lockScreen">
+        <div class="logo-container">
+            <img src="web.png" alt="Spiderweb Heart" class="logo">
+        </div>
+
+        <div class="passcode-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+
+        <div class="numpad">
+            <button class="num-btn" style="background-image: url('shinchan.png');"></button>
+            <button class="num-btn" style="background-image: url('toji.png');"></button>
+            <button class="num-btn" style="background-image: url('doraemon.png');"></button>
+            
+            <button class="num-btn" style="background-image: url('obito.png');"></button>
+            <button class="num-btn" style="background-image: url('teddy.png');"></button>
+            <button class="num-btn" style="background-image: url('spongbob.png');"></button>
+            
+            <button class="num-btn" style="background-image: url('pooh.png');"></button>
+            <button class="num-btn" style="background-image: url('noddy.png');"></button>
+            <button class="num-btn" style="background-image: url('bandb.png');"></button>
+            
+            <button class="num-btn spiderman-btn" style="background-image: url('spiderman.png');"></button>
+        </div>
+    </div>
+
+    <!-- MAIN SCROLLABLE CONTENT (Hidden until unlocked) -->
+    <div id="unlockedContent">
+        
+        <!-- SECTION 1: AURA STORE -->
+        <div class="main-website" id="mainWebsite">
+            <div class="account-info">account id - 037.999</div>
+            <div class="web-wrapper">
+                <header>
+                    <div class="logo-area">
+                        <img src="star.png" alt="Star Logo" class="header-star">
+                    </div>
+                    <nav>
+                        <a id="mainBtn" class="active">main</a>
+                        <a>shop</a>
+                        <a>custom</a>
+                        <a id="aboutBtn">about</a>
+                        <a>contact</a>
+                    </nav>
+                </header>
+
+                <main>
+                    <div class="background-text">
+                        <img src="jake.png" alt="Jake" class="bg-left-img">
+                        <img src="japan.png" alt="Japan" class="bg-right-img">
+                    </div>
+
+                    <div class="bottom-left-content">
+                        <div class="recycle-icon">人生</div>
+                        <p>I have tasted love and drugs trust me choose drugs cuz u won’t regret it . In the end of the day <span class="spiderman-text">I’M SPIDERMAN</span></p>
+                    </div>
+
+                    <div class="right-content">
+                        <div class="product-card" id="3d-model-container">
+                            <model-viewer 
+                                id="my3dModel"
+                                class="my-3d-model"
+                                src="book.glb" 
+                                alt="A 3D book model" 
+                                auto-rotate 
+                                camera-controls 
+                                disable-zoom
+                                shadow-intensity="1">
+                            </model-viewer>
+                            <img id="aboutImg" src="about.jpg" alt="About Image" class="about-card-img">
+                        </div>
+                    </div>
+                </main>
+                
+                <img src="goth.png" alt="Main Model" class="center-model">
+            </div>
+        </div>
+
+        <!-- SECTION 2: GRADIENT LAYOUT -->
+        <div class="gradient-section" id="gradientSection">
+            <img src="jap.jpg" alt="Japanese text graphic" class="side-text" />
+
+            <div class="canvas-card">
+                <img src="bleachme.jpg" alt="G-Wagon halftone edit" class="card-image" />
+                
+                <p class="quote-text">How long is forever ? I don’t know. but I want you forever that I know ! It was never the bleachers <span class="red-text">( It was always the bleachers )</span></p>
+
+                <div class="right-side-text">
+                    <p>It always started with “Hey” and ended with “goodbye” I finally (never really) understood the difference between love and drugs.</p>
+                    <p class="grey-text">Alcohol and cigarettes tasted better until I tasted your lips</p>
+                    <p class="red-text">Wise man say home is where the heart is but my heart is with you</p>
+                </div>
+
+                <img src="bleachers.jpg" alt="Overlay photo" class="overlay-image" id="play-pause-btn" />
+                
+                <img src="cak3.jpg" alt="Cake" class="cake-image" />
+
+                <div class="model-container">
+                    <model-viewer 
+                        class="gradient-model-viewer"
+                        src="gwagon.glb" 
+                        auto-rotate 
+                        camera-controls 
+                        shadow-intensity="1" 
+                        disable-zoom>
+                    </model-viewer>
+                </div>
+            </div>
+        </div>
+        
+    </div> <!-- End unlockedContent -->
+
+    <!-- INTERACTIVE SCRIPTS -->
+    <script>
+        // --- LOCK SCREEN LOGIC ---
+        const lockScreen = document.getElementById('lockScreen');
+        const unlockedContent = document.getElementById('unlockedContent');
+        
+        let clicks = 0;
+        const dots = document.querySelectorAll('.dot');
+        const buttons = document.querySelectorAll('.num-btn');
+        
+        // Correct sequence indices: shinchan (0), obito (3), doraemon (2), toji (1)
+        const correctSequence = [0, 3, 2, 1];
+        let enteredSequence = [];
+
+        buttons.forEach((button, index) => {
+            button.addEventListener('click', () => {
+                if (clicks < 4) {
+                    dots[clicks].style.backgroundColor = '#fff'; 
+                    dots[clicks].style.boxShadow = '0 0 8px rgba(255, 255, 255, 0.8)';
+                    enteredSequence.push(index);
+                    clicks++;
+                }
+                
+                if (clicks === 4) {
+                    // Check if entered sequence matches correct sequence
+                    if (JSON.stringify(enteredSequence) === JSON.stringify(correctSequence)) {
+                        setTimeout(() => {
+                            // Remove background and allow scrolling
+                            document.body.style.backgroundImage = 'none';
+                            document.body.style.overflow = 'auto'; 
+                            document.body.style.alignItems = 'flex-start'; 
+
+                            lockScreen.style.display = 'none';
+                            
+                            // Show combined layout
+                            unlockedContent.style.display = 'block'; 
+                            setTimeout(() => {
+                                unlockedContent.style.opacity = '1';
+                            }, 50);
+                        }, 400); 
+                    } else {
+                        // Wrong sequence: Reset dots and clicks
+                        setTimeout(() => {
+                            clicks = 0;
+                            enteredSequence = [];
+                            dots.forEach(dot => {
+                                dot.style.backgroundColor = '#555';
+                                dot.style.boxShadow = '0 0 4px rgba(255, 255, 255, 0.2)';
+                            });
+                        }, 400); // Quick delay to show the 4th dot lighting up before resetting
+                    }
+                }
+            });
+        });
+
+        // --- ABOUT AUDIO TOGGLE LOGIC ---
+        const aboutBtn = document.getElementById('aboutBtn');
+        const mainBtn = document.getElementById('mainBtn');
+        const model3d = document.getElementById('my3dModel');
+        const aboutImg = document.getElementById('aboutImg');
+        const aboutAudio = document.getElementById('aboutAudio');
+
+        let isAboutActive = false;
+
+        aboutBtn.addEventListener('click', () => {
+            isAboutActive = !isAboutActive;
+
+            if (isAboutActive) {
+                model3d.style.display = 'none';
+                aboutImg.style.display = 'block';
+                aboutBtn.classList.add('active');
+                mainBtn.classList.remove('active');
+                aboutAudio.play();
+            } else {
+                model3d.style.display = 'block';
+                aboutImg.style.display = 'none';
+                aboutBtn.classList.remove('active');
+                mainBtn.classList.add('active');
+                aboutAudio.pause();
+            }
+        });
+
+        // --- GRADIENT SECTION AUDIO TOGGLE ---
+        const gradientAudioBtn = document.getElementById('play-pause-btn');
+        const gradientAudioPlayer = document.getElementById('background-audio');
+
+        gradientAudioBtn.addEventListener('click', () => {
+            if (gradientAudioPlayer.paused) {
+                gradientAudioPlayer.play();
+            } else {
+                gradientAudioPlayer.pause();
+            }
+        });
+    </script>
+</body>
+</html>
